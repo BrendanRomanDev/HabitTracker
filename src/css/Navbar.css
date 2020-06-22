@@ -1,0 +1,21 @@
+.navbar-brand {
+	color: black;
+}
+
+.navbar-dark {
+	letter-spacing: 3px;
+	color: #2d3047;
+	background-color: #759eb8;
+}
+
+.navbar-brand {
+	font-weight: bold;
+	color: #2d3047;
+	font-size: 2rem;
+}
+
+.navbar-dark .nav-link {
+	font-weight: bold;
+	font-size: 1.2rem;
+	margin: 0 20px;
+}
