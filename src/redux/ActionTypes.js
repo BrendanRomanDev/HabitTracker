@@ -1,0 +1,2 @@
+export const ADD_HABIT_GROUP = 'ADD_HABIT_GROUP';
+export const ADD_HABIT_ITEM = 'ADD_HABIT_ITEM';
