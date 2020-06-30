@@ -5,7 +5,14 @@ import * as ActionTypes from './ActionTypes';
 export const habitGroups = (state = { habitGroups: HABITGROUPS }, action) => {
 	switch (action.type) {
 		case ActionTypes.ADD_HABIT_GROUP:
-			return { ...state, habitGroups: action.payload };
+			return { ...state, habitGroups: [ ...state.habitGroups, action.payload ] };
+		case ActionTypes.DEL_HABIT_GROUP:
+			return {
+				...state,
+				habitGroups : [ ...state.habitGroups.filter((item) => item.id !== action.payload) ]
+			};
+
+		default:
+			return state;
 	}
-	return state;
 };
