@@ -1,38 +1,145 @@
-.App {
-  text-align: center;
+/* google font ideas */
+/* exo, gudea, koho */
+/* 
+font-family: 'Exo', sans-serif;
+font-family: 'Gudea', sans-serif;
+font-family: 'KoHo', sans-serif;
+font-family: 'Ubuntu', sans-serif; */
+
+body {
+	background-color: #4f4f4f;
+	font-family: 'Exo', sans-serif;
+	margin: 0;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	margin: 0;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+hr {
+	margin: 5px at;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.card.habitGroup {
+	position: relative;
+	margin: 40px auto;
+	border: none;
+	max-width: 20%;
+	min-width: 350px;
+	border-radius: 10px;
+	-webkit-box-shadow: -7px 1px 19px 5px #303030;
+	-moz-box-shadow: -7px 1px 19px 5px #303030;
+	box-shadow: -7px 1px 19px 5px #303030;
 }
 
-.App-link {
-  color: #61dafb;
+.card.habitItem {
+	position: relative;
+	margin: 10px auto;
+	border: none;
+	max-width: 20%;
+	min-width: 300px;
+	border-radius: 10px;
+	-webkit-box-shadow: -7px 1px 19px 5px #303030;
+	-moz-box-shadow: -7px 1px 19px 5px #303030;
+	box-shadow: -7px 1px 19px 5px #303030;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.card-header {
+	border: none;
+}
+
+.add-habit-btn {
+	position: absolute;
+	left: 47%;
+	top: 48px;
+	padding: 0 5px;
+	border: 1px solid #303030;
+	color: #63c132;
+}
+
+.card-body.habitGroup {
+	padding: 0 50px 40px;
+	background-color: #fcfefc;
+	border: none;
+	position: relative;
+	border-radius: 10px;
+}
+
+.card-body.habitItem {
+	padding: 25px 25px 40px;
+	background-color: #fcfefc;
+	border: none;
+	position: relative;
+	border-radius: 10px;
+}
+
+.details-btn {
+	position: absolute;
+	right: 5%;
+	top: 3%;
+}
+
+.settings-btn {
+	position: absolute;
+	right: 5%;
+	top: -5%;
+}
+
+.log-time-btn {
+	border: 1px solid #303030;
+	color: #63c132;
+	font-size: .6rem;
+	padding: 2px 5px;
+	position: absolute;
+	left: 38%;
+	bottom: -15%;
+}
+
+.lvlCircle {
+	position: relative;
+}
+
+.component-level.habitGroup {
+	position: absolute;
+	font-size: 3rem;
+	left: 50%;
+	top: 23%;
+	transform: translateX(-50%);
+	color: #fff;
+}
+
+.component-level.habitItem {
+	position: absolute;
+	font-size: 1.5rem;
+	left: 63%;
+	top: 22%;
+	transform: translateX(-50%);
+	color: #fff;
+}
+
+.xp-num.habitItem {
+	font-size: .8rem;
+}
+
+.progress-bar {
+	background-color: #63c132;
+}
+
+.card-stats-div {
+	font-family: 'KoHo', sans-serif;
+}
+
+.card-stats-hr {
+	margin: 0 5%;
+}
+
+.header-hr {
+	align-self: center;
+	width: 80%;
+	margin: auto;
 }
