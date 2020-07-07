@@ -3,8 +3,9 @@
 /////////////////////////////////////////////
 ///////////////////////////////////////////
 
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import {
+	Container,
 	Row,
 	Col,
 	Card,
@@ -17,7 +18,11 @@ import {
 	Input,
 	Modal,
 	ModalHeader,
-	ModalBody
+	ModalBody,
+	ButtonDropdown,
+	DropdownToggle,
+	DropdownItem,
+	DropdownMenu
 } from 'reactstrap';
 import { postHabitGroup, postHabitItem, removeHabitGroup, removeHabitItem } from '../redux/ActionCreators';
 import { connect } from 'react-redux';
@@ -81,22 +86,22 @@ class HabitGroup extends Component {
 
 	render() {
 		return (
-			<React.Fragment>
-				<HabitGroupInput
+			<Container className="main">
+				{/* <HabitGroupInput
 					habitGroups={this.props.habitGroupsState.habitGroups}
 					groupName={this.state.groupName}
 					groupDescription={this.state.groupDescription}
 					handleGroupChange={this.handleGroupChange}
 					handleSubmit={this.handleGroupSubmit}
-				/>
-				<HabitGroupList
+				/> */}
+				<HabitGroupCard
 					habitGroups={this.props.habitGroupsState.habitGroups}
 					habits={this.props.habitsState.habits}
 					removeHabitGroup={this.props.handleRemoveHabitGroup}
 					addHabitItem={this.props.handlePostHabitItem}
 					removeHabitItem={this.props.handleRemoveHabititem}
 				/>
-			</React.Fragment>
+			</Container>
 		);
 	}
 }
@@ -148,77 +153,150 @@ export function HabitGroupInput(props) {
 		</div>
 	);
 }
+////THE HABIT GROUP MAPPED BUTTONS NEED TO COME FROM WITHIN THE CARD HEADER, AND THE CARD BODY NEEDS TO RENDER BASED ON THAT/////
 
 ///////HABIT GROUP, CONTAINING EACH GROUP AND EACH RESPECTIVE HABIT////////
 //functional
-export function HabitGroupList(props) {
+export function HabitGroupCard(props) {
 	const { habitGroups, habits, removeHabitGroup, addHabitItem, removeHabitItem } = props;
-	return habitGroups.map((habitGroup) => {
-		return (
-			<RenderHabitGroup
-				habitGroup={habitGroup}
-				removeHabitGroup={removeHabitGroup}
+	const [ group, setGroup ] = useState({ id: 0 });
+	const selectGroupId = (habitGroup) => {
+		setGroup(habitGroup);
+	};
+	//// THE STATE DATA IS CHANGING, BUT THE PAGE IS NOT RE-RENDERING TO INCLUDE THE STATE DATA. THIS IS PROBABLY BECAUSE WE NEED TO ADD A FUNCTION TO USESTATE THAT SETS SOMETHING...
+
+	return (
+		<Card className="habitGroup">
+			<CardHeader>
+				<GroupHeaderButtons habitGroups={habitGroups} selectGroupId={selectGroupId} />
+				<hr />
+			</CardHeader>
+
+			<GroupCardBody
 				habits={habits}
 				addHabitItem={addHabitItem}
-				removeHabitItem={removeHabitItem}
+				habitGroup={habitGroups.filter((item) => group.id === item.id)[0]}
 			/>
-		);
-	});
-}
-
-//presentational
-export function RenderHabitGroup(props) {
-	const { habitGroup, habits, removeHabitGroup, addHabitItem, removeHabitItem } = props;
-	return (
-		<React.Fragment>
-			<div>
-				<h6>Group #: {habitGroup.id + 1} </h6>
-				<h4>Habit Group Name: {habitGroup.groupName}</h4>
-				<p>Category Level: {habitGroup.groupLevel}</p>
-				<p>Description: {habitGroup.groupDescription}</p>
-				<ul>
-					<HabitList habitGroup={habitGroup} habits={habits} removeHabitItem={removeHabitItem} />
-				</ul>
-			</div>
-			<Button
-				type="button"
-				onClick={() => {
-					removeHabitGroup(habitGroup);
-				}}
-			>
-				Remove Habit Group
-			</Button>
-			<AddHabitModal addHabitItem={addHabitItem} habitGroup={habitGroup} habits={habits} />
-			<hr />
-			<hr />
-		</React.Fragment>
+		</Card>
 	);
 }
 
-export function HabitGroupSelector(props) {}
+//presentational
+export function GroupHeaderButtons(props) {
+	const { habitGroups, selectGroupId } = props;
+	return habitGroups.map((habitGroup) => {
+		return (
+			<Button className="btn btn-sm btn-dark" onClick={() => selectGroupId(habitGroup)}>
+				{habitGroup.groupName}
+			</Button>
+		);
+	});
+}
+//display only the data for the groupID shown in state.
+
+export function GroupCardBody(props) {
+	const { habitGroup, habits, addHabitItem } = props;
+
+	return (
+		<CardBody className="habitGroup text-center">
+			<HabitGroupSettings />
+			<h2 className="mb-2">{habitGroup.groupName}</h2>
+			<div className="lvlCircle mb-3">
+				<svg width="100" height="100">
+					<circle cx="50" cy="50" r="45" fill="#63C132" />
+				</svg>
+				<h1 className="component-level habitGroup">{habitGroup.groupLevel}</h1>
+			</div>
+			<Row>
+				<Col>
+					<h6 className="text-left text-muted">300 / 400</h6>
+				</Col>
+				<Col>
+					<h6 className="text-right text-muted">75%</h6>
+				</Col>
+				PROGRESS BAR HERE
+			</Row>
+
+			<div className="card-stats-div mt-4">
+				<h5 className="mb-3 font-weight-bold">Commitments</h5>
+				<hr />
+				<AddHabitModal addHabitItem={addHabitItem} habitGroup={habitGroup} habits={habits} />
+				<GroupHabitList habitGroup={habitGroup} habits={habits} />
+			</div>
+		</CardBody>
+	);
+}
+
+//presentational
+export function RenderHabitGroupCard(props) {
+	const { habitGroups, habitGroup, habits, removeHabitGroup, addHabitItem } = props;
+
+	return (
+		<Row>
+			<Col>
+				<Card className="habitGroup">
+					<CardHeader>
+						<Button className="btn btn-sm btn-dark">{habitGroup.groupName}</Button>
+					</CardHeader>
+					<Button className="btn btn-sm btn-light add-habit-group-btn">
+						<i className="fa fa-plus" />
+					</Button>
+
+					{/* /// have habit list render properly : ) */}
+
+					<Button
+						type="button"
+						onClick={() => {
+							removeHabitGroup(habitGroup);
+						}}
+					>
+						Remove Habit Group
+					</Button>
+				</Card>
+			</Col>
+		</Row>
+	);
+}
+
+//HABIT GROUP SETTINGS BUTTON
+export const HabitGroupSettings = (props) => {
+	const [ dropdownOpen, setOpen ] = useState(false);
+	const toggle = () => setOpen(!dropdownOpen);
+	return (
+		<ButtonDropdown className="settings-btn" isOpen={dropdownOpen} toggle={toggle}>
+			<DropdownToggle className="btn-light">
+				<i className="fa fa-cog" />
+			</DropdownToggle>
+			<DropdownMenu>
+				<DropdownItem>Delete</DropdownItem>
+			</DropdownMenu>
+		</ButtonDropdown>
+	);
+};
 
 //////////////INDIVIDUAL HABIT LIST///////////////
 //functional
-export function HabitList(props) {
-	const { habitGroup, habits, removeHabitItem } = props;
+export function GroupHabitList(props) {
+	const { habitGroup, habits } = props;
 	return habits.filter((habit) => habit.groupId === habitGroup.id).map((habit) => {
 		return (
-			<li>
-				<RenderHabit habitGroup={habitGroup} habit={habit} removeHabitItem={removeHabitItem} />
-			</li>
+			<React.Fragment>
+				<Row>
+					<RenderGroupHabitItem habit={habit} />
+				</Row>
+				<hr className="card-stats-hr" />
+			</React.Fragment>
 		);
 	});
 }
 
 //presentational
-export function RenderHabit(props) {
-	const { habit, removeHabitItem } = props;
+export function RenderGroupHabitItem(props) {
+	const { habit } = props;
 	return (
 		<React.Fragment>
-			<li>{habit.habitName}</li>
-			<Button className="btn-sm" type="button" onClick={() => removeHabitItem(habit)}>
-				Delete
-			</Button>
+			<Col className="my-2 text-left">{habit.habitName}</Col>
+			<Col className="my-2 text-center ml-5">Lvl: 2</Col>
 		</React.Fragment>
 	);
 }
@@ -269,8 +347,8 @@ export class AddHabitModal extends Component {
 	render() {
 		return (
 			<React.Fragment>
-				<Button type="button" onClick={this.toggleModal}>
-					+ Add Habit
+				<Button type="button" onClick={this.toggleModal} className="btn btn-sm btn-light add-habit-btn">
+					<i className="fa fa-plus" />
 				</Button>
 				<Modal isOpen={this.state.isModalOpen} toggle={this.toggleModal}>
 					<ModalHeader toggle={this.toggleModal}>{this.props.habitGroup.groupName}</ModalHeader>
