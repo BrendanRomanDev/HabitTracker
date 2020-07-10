@@ -11,7 +11,6 @@ export const habitGroups = (state = { habitGroups: HABITGROUPS }, action) => {
 				...state,
 				habitGroups : [ ...state.habitGroups.filter((item) => item.id !== action.payload) ]
 			};
-
 		default:
 			return state;
 	}

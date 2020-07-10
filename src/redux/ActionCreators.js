@@ -8,7 +8,6 @@ export const addHabitGroup = (habitGroup) => ({
 });
 
 export const postHabitGroup = (habitGroup) => (dispatch) => {
-	console.log('habitGroup: ', habitGroup);
 	const newHabitGroup = {
 		id               : habitGroup.id,
 		groupName        : habitGroup.groupName,
@@ -34,7 +33,6 @@ export const addHabitItem = (habit) => ({
 });
 
 export const postHabitItem = (habitItem) => (dispatch) => {
-	console.log('habitItem: ', habitItem);
 	const newHabit = {
 		groupId   : habitItem.groupId,
 		id        : habitItem.id,
