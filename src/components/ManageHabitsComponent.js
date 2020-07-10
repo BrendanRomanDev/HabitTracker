@@ -23,13 +23,14 @@ import {
 	DropdownMenu
 } from 'reactstrap';
 import { HabitGroupCard } from './HabitGroupComponent';
-import { postHabitGroup, postHabitItem, removeHabitGroup, removeHabitItem } from '../redux/ActionCreators';
+import { postHabitGroup, postHabitItem, removeHabitGroup, removeHabitItem, postTimeLog } from '../redux/ActionCreators';
 import { connect } from 'react-redux';
 
 const mapStateToProps = (state) => {
 	return {
 		habitGroupsState : state.habitGroups,
-		habitsState      : state.habits
+		habitsState      : state.habits,
+		timeLogState     : state.timeLogs
 	};
 };
 
@@ -45,6 +46,9 @@ const mapDispatchToProps = (dispatch) => ({
 	},
 	handleRemoveHabititem  : (habit) => {
 		dispatch(removeHabitItem(habit));
+	},
+	handlePostTimeLog      : (timeData) => {
+		dispatch(postTimeLog(timeData));
 	}
 });
 
@@ -65,6 +69,9 @@ export function ManageHabits(props) {
 				//habit item related
 				habits={props.habitsState.habits}
 				addHabitItem={props.handlePostHabitItem}
+				//time log related
+				timeLogs={props.timeLogState.timeLogs}
+				addTimeLog={props.handlePostTimeLog}
 			/>
 			<AllHabitCards
 				//habit group related
@@ -73,13 +80,15 @@ export function ManageHabits(props) {
 				//habit item related
 				habits={props.habitsState.habits}
 				removeHabitItem={props.handleRemoveHabititem}
+				timeLogs={props.timeLogState.timeLogs}
+				addTimeLog={props.handlePostTimeLog}
 			/>
 		</Container>
 	);
 }
-
+///GET EACH CARD RENDERING THE TIMELOGS PROPERLY based on the filter data!!!
 export function AllHabitCards(props) {
-	const { habits, group, removeHabitItem } = props;
+	const { habits, group, removeHabitItem, timelogs, addTimeLog } = props;
 	return habits.filter((habit) => habit.groupId === group.id).map((habit) => {
 		return (
 			<React.Fragment>
@@ -132,7 +141,7 @@ export function HabitItemCard(props) {
 					<h4 className="mb-2">Today</h4>
 					<div className="row">
 						<div className="col my-2 text-left">Time Invested</div>
-						<div className="col my-2">2 hrs, 20 min</div>
+						<div className="col my-2">{habit.habitTimeTotal}</div>
 					</div>
 					<hr className="card-stats-hr" />
 					<div className="row">

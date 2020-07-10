@@ -28,7 +28,17 @@ import { connect } from 'react-redux';
 ///////HABIT GROUP, CONTAINING EACH GROUP AND EACH RESPECTIVE HABIT////////
 //functional
 export function HabitGroupCard(props) {
-	const { habitGroups, addHabitGroup, removeHabitGroup, selectGroupId, group, habits, addHabitItem } = props;
+	const {
+		habitGroups,
+		addHabitGroup,
+		removeHabitGroup,
+		selectGroupId,
+		group,
+		habits,
+		addHabitItem,
+		addTimeLog,
+		timeLogs
+	} = props;
 	return (
 		<Card className="habitGroup">
 			<CardHeader>
@@ -37,12 +47,17 @@ export function HabitGroupCard(props) {
 				<hr />
 			</CardHeader>
 			<GroupCardBody
-				habits={habits}
-				addHabitItem={addHabitItem}
+				//group related
 				habitGroups={habitGroups}
 				habitGroup={habitGroups.filter((item) => group.id === item.id)[0]}
 				altHabitGroup={habitGroups.filter((item) => group.id !== item.id)[0]}
 				removeHabitGroup={removeHabitGroup}
+				//habit item related
+				habits={habits}
+				addHabitItem={addHabitItem}
+				//timeLog Related
+				timeLogs={timeLogs}
+				addTimeLog={addTimeLog}
 			/>
 		</Card>
 	);
@@ -61,7 +76,7 @@ export function GroupHeaderButtons(props) {
 }
 
 export function GroupCardBody(props) {
-	const { habitGroup, altHabitGroup, removeHabitGroup, habits, addHabitItem } = props;
+	const { habitGroup, altHabitGroup, removeHabitGroup, habits, addHabitItem, addTimeLog, timeLogs } = props;
 	if (habitGroup) {
 		return (
 			<CardBody className="habitGroup text-center">
@@ -87,7 +102,13 @@ export function GroupCardBody(props) {
 				<div className="card-stats-div mt-4">
 					<h5 className="mb-3 font-weight-bold">Commitments</h5>
 					<hr />
-					<AddHabitModal addHabitItem={addHabitItem} habitGroup={habitGroup} habits={habits} />
+					<AddHabitModal
+						addHabitItem={addHabitItem}
+						habitGroup={habitGroup}
+						habits={habits}
+						timeLogs={timeLogs}
+						addTimeLog={addTimeLog}
+					/>
 					<GroupHabitList habitGroup={habitGroup} habits={habits} />
 				</div>
 			</CardBody>
@@ -117,7 +138,13 @@ export function GroupCardBody(props) {
 				<div className="card-stats-div mt-4">
 					<h5 className="mb-3 font-weight-bold">Commitments</h5>
 					<hr />
-					<AddHabitModal addHabitItem={addHabitItem} habitGroup={altHabitGroup} habits={habits} />
+					<AddHabitModal
+						addHabitItem={addHabitItem}
+						habitGroup={altHabitGroup}
+						habits={habits}
+						timeLogs={timeLogs}
+						addTimeLog={addTimeLog}
+					/>
 					<GroupHabitList habitGroup={altHabitGroup} habits={habits} />
 				</div>
 			</CardBody>
@@ -167,6 +194,7 @@ export class AddHabitGroupModal extends Component {
 				groupName        : '',
 				groupLevel       : '',
 				groupDescription : '',
+				groupTimeTotal   : 0,
 				usedGroupIds     : [ ...this.state.usedGroupIds.concat(this.state.id) ]
 			});
 		} else {
@@ -192,6 +220,17 @@ export class AddHabitGroupModal extends Component {
 										placeholder="Category Name..."
 										onChange={(event) => this.handleGroupChange(event)}
 										value={this.state.groupName}
+									/>
+								</Col>
+							</Row>
+							<Row className="form-group">
+								<Col md={10}>
+									<Input
+										type="text"
+										name="groupDescription"
+										placeholder="Brief Description..."
+										onChange={(event) => this.handleGroupChange(event)}
+										value={this.state.groupDescription}
 									/>
 								</Col>
 							</Row>
@@ -262,11 +301,14 @@ export class AddHabitModal extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			isModalOpen : false,
-			id          : '',
-			groupId     : this.props.habitGroup.id,
-			habitName   : '',
-			usedItemIds : [ 0 ]
+			isModalOpen    : false,
+			id             : '',
+			groupId        : this.props.habitGroup.id,
+			habitName      : '',
+			habitHrs       : '',
+			habitMins      : '',
+			habitTimeTotal : '',
+			usedItemIds    : [ 0 ]
 		};
 	}
 
@@ -285,6 +327,7 @@ export class AddHabitModal extends Component {
 	};
 
 	handleSubmit = (event) => {
+		console.log(this.props.timeLogs);
 		event.preventDefault();
 		this.toggleModal();
 		const habitInfo = {
@@ -292,16 +335,30 @@ export class AddHabitModal extends Component {
 			groupId   : this.props.habitGroup.id,
 			habitName : this.state.habitName
 		};
+
+		const timeData = {
+			id        : this.props.timeLogs.length,
+			habitId   : this.state.id,
+			groupId   : this.props.habitGroup.id,
+			hrs       : +this.state.habitHrs,
+			mins      : +this.state.habitMins,
+			timeTotal : this.state.habitTimeTotal
+		};
 		this.props.addHabitItem(habitInfo);
+		this.props.addTimeLog(timeData);
 		this.setState({
-			isModalOpen : false,
-			id          : '',
-			groupId     : this.props.habitGroup.id,
-			habitName   : '',
-			usedItemIds : [ ...this.state.usedItemIds.concat(this.state.id) ]
+			isModalOpen    : false,
+			id             : '',
+			groupId        : this.props.habitGroup.id,
+			habitName      : '',
+			habitHrs       : '',
+			habitMins      : '',
+			habitTimeTotal : '',
+			usedItemIds    : [ ...this.state.usedItemIds.concat(this.state.id) ]
 		});
 	};
-
+	//props.timelogs...
+	//props.addTimeLog(timeData)
 	render() {
 		return (
 			<React.Fragment>
@@ -312,8 +369,8 @@ export class AddHabitModal extends Component {
 					<ModalHeader toggle={this.toggleModal}>{this.props.habitGroup.groupName}</ModalHeader>
 					<ModalBody>
 						<Form onSubmit={(event) => this.handleSubmit(event)}>
-							<Row className="form-group">
-								<Col md={10}>
+							<FormGroup className="row">
+								<Col size={12}>
 									<Label htmlFor="habitName">New Habit</Label>
 									<Input
 										type="text"
@@ -323,7 +380,32 @@ export class AddHabitModal extends Component {
 										value={this.state.habitName}
 									/>
 								</Col>
-							</Row>
+							</FormGroup>
+							<hr />
+							<Label htmlFor="habitHours">Time Already Invested</Label>
+
+							<FormGroup className="row">
+								<Col xs={3}>
+									<Input
+										type="number"
+										name="habitHrs"
+										placeholder="Hours"
+										onChange={(event) => this.handleInputChange(event)}
+										value={this.state.habitHrs}
+									/>
+								</Col>
+
+								<Col xs={3}>
+									<Input
+										type="number"
+										max="59"
+										name="habitMins"
+										placeholder="Mins"
+										onChange={(event) => this.handleInputChange(event)}
+										value={this.state.habitMins}
+									/>
+								</Col>
+							</FormGroup>
 							<Button type="submit" value="submit" color="secondary">
 								Add Habit
 							</Button>
