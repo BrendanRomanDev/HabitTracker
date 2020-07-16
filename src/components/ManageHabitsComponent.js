@@ -23,7 +23,7 @@ import {
 	DropdownMenu
 } from 'reactstrap';
 import { HabitGroupCard } from './HabitGroupComponent';
-import { Loading } from './LoadingComponent';
+// import { Loading } from './LoadingComponent';
 import {
 	postHabitGroup,
 	postHabitItem,
@@ -79,12 +79,12 @@ export function ManageHabits(props) {
 		setGroup(habitGroup);
 	};
 
-	if (props.habitGroupsState.habitGroups.isLoading) {
-		return <Loading />;
-	}
-	if (props.habitGroupsState.habitGroups.errMess) {
-		return <h4>{props.habitGroupsState.habitGroups.errMess}</h4>;
-	}
+	// if (props.habitGroupsState.habitGroups.isLoading) {
+	// 	return <Loading />;
+	// }
+	// if (props.habitGroupsState.habitGroups.errMess) {
+	// 	return <h4>{props.habitGroupsState.habitGroups.errMess}</h4>;
+	// }
 
 	return (
 		<Container className="main">

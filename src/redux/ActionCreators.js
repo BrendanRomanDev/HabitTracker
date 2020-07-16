@@ -49,7 +49,7 @@ export const postHabitGroup = (habitGroup) => (dispatch) => {
 	return axios
 		.post(baseUrl + 'habitGroups', newHabitGroup)
 		.then((res) => {
-			dispatch(addHabitGroup(res));
+			dispatch(addHabitGroup(res.data));
 		})
 		.catch((error) => console.log(error));
 };
@@ -80,7 +80,7 @@ export const postHabitItem = (habitItem) => (dispatch) => {
 	return axios
 		.post(baseUrl + 'habits', newHabit)
 		.then((res) => {
-			dispatch(addHabitItem(res));
+			dispatch(addHabitItem(res.data));
 		})
 		.catch((error) => console.log(error));
 };
@@ -111,7 +111,7 @@ export const postTimeLog = (timeData) => (dispatch) => {
 	return axios
 		.post(baseUrl + 'timeLogs', newTimeLog)
 		.then((res) => {
-			dispatch(addTimeLog(res));
+			dispatch(addTimeLog(res.data));
 		})
 		.catch((error) => console.log(error));
 };
