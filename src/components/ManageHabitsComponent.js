@@ -1,7 +1,7 @@
 ////////THIGNS TO FIX LATER////////////
 ///////LINE 180(ish) 	usedGroupIds     : [ 0, 1 ] <--- THIS WAS TEST DATA
 
-import React, { Component, useState } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 import {
 	Container,
 	Row,
@@ -23,8 +23,17 @@ import {
 	DropdownMenu
 } from 'reactstrap';
 import { HabitGroupCard } from './HabitGroupComponent';
-import { postHabitGroup, postHabitItem, removeHabitGroup, removeHabitItem, postTimeLog } from '../redux/ActionCreators';
+import { Loading } from './LoadingComponent';
+import {
+	postHabitGroup,
+	postHabitItem,
+	removeHabitGroup,
+	removeHabitItem,
+	postTimeLog,
+	fetchItems
+} from '../redux/ActionCreators';
 import { connect } from 'react-redux';
+// import { baseUrl } from '../shared/baseUrl';
 
 const mapStateToProps = (state) => {
 	return {
@@ -35,6 +44,9 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = (dispatch) => ({
+	getItems               : (itemsToFetch) => {
+		dispatch(fetchItems(itemsToFetch));
+	},
 	handlePostHabitGroup   : (habitGroup) => {
 		dispatch(postHabitGroup(habitGroup));
 	},
@@ -53,10 +65,27 @@ const mapDispatchToProps = (dispatch) => ({
 });
 
 export function ManageHabits(props) {
+	useEffect(() => {
+		props.getItems('habitGroups');
+	});
+	useEffect(() => {
+		props.getItems('habits');
+	});
+	useEffect(() => {
+		props.getItems('timeLogs');
+	});
 	const [ group, setGroup ] = useState({ id: 0 });
 	const selectGroupId = (habitGroup) => {
 		setGroup(habitGroup);
 	};
+
+	if (props.habitGroupsState.habitGroups.isLoading) {
+		return <Loading />;
+	}
+	if (props.habitGroupsState.habitGroups.errMess) {
+		return <h4>{props.habitGroupsState.habitGroups.errMess}</h4>;
+	}
+
 	return (
 		<Container className="main">
 			<HabitGroupCard
@@ -74,6 +103,8 @@ export function ManageHabits(props) {
 				addTimeLog={props.handlePostTimeLog}
 			/>
 			<AllHabitCards
+				dataLoading={props.handleDataLoading}
+				dataFailed={props.handleDataFail}
 				//habit group related
 				group={group}
 				selectGroupId={selectGroupId}
@@ -88,12 +119,18 @@ export function ManageHabits(props) {
 }
 ///GET EACH CARD RENDERING THE TIMELOGS PROPERLY based on the filter data!!!
 export function AllHabitCards(props) {
-	const { habits, group, removeHabitItem, timelogs, addTimeLog } = props;
+	const { habits, group, removeHabitItem, timeLogs, addTimeLog } = props;
 	return habits.filter((habit) => habit.groupId === group.id).map((habit) => {
 		return (
 			<React.Fragment>
 				<Row>
-					<HabitItemCard habit={habit} removeHabitItem={removeHabitItem} />
+					<HabitItemCard
+						dataLoading={props.handleDataLoading}
+						dataFailed={props.handleDataFail}
+						habit={habit}
+						removeHabitItem={removeHabitItem}
+						timeLog={timeLogs.filter((timeLog) => timeLog.habitId === habit.id)}
+					/>
 				</Row>
 			</React.Fragment>
 		);
@@ -102,7 +139,7 @@ export function AllHabitCards(props) {
 //For every item belonging to the selected Habit Group, Display a Card for EACH habit item belonging to it.
 
 export function HabitItemCard(props) {
-	const { habit, removeHabitItem } = props;
+	const { habit, removeHabitItem, timeLog } = props;
 	return (
 		<Card className="card habitItem text-center">
 			<CardHeader className="card-header m-0">
@@ -141,7 +178,7 @@ export function HabitItemCard(props) {
 					<h4 className="mb-2">Today</h4>
 					<div className="row">
 						<div className="col my-2 text-left">Time Invested</div>
-						<div className="col my-2">{habit.habitTimeTotal}</div>
+						<div className="col my-2">{timeLog.id ? timeLog.hrs : 0}</div>
 					</div>
 					<hr className="card-stats-hr" />
 					<div className="row">

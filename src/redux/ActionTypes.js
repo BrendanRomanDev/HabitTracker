@@ -1,5 +1,10 @@
 //----------------ACTION TYPES ---------------------
 
+//General Use//
+
+export const DATA_LOADING = 'DATA_LOADING';
+export const DATA_FAILED = 'DATA_FAILED';
+
 //Habit Group//
 export const ADD_HABIT_GROUP = 'ADD_HABIT_GROUP';
 export const DEL_HABIT_GROUP = 'DEL_HABIT_GROUP';

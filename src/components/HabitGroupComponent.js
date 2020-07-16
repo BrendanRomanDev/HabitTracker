@@ -22,8 +22,8 @@ import {
 	DropdownItem,
 	DropdownMenu
 } from 'reactstrap';
-import { postHabitGroup, postHabitItem, removeHabitGroup, removeHabitItem } from '../redux/ActionCreators';
-import { connect } from 'react-redux';
+import { Loading } from './LoadingComponent';
+import { baseUrl } from '../shared/baseUrl';
 
 ///////HABIT GROUP, CONTAINING EACH GROUP AND EACH RESPECTIVE HABIT////////
 //functional
@@ -39,6 +39,7 @@ export function HabitGroupCard(props) {
 		addTimeLog,
 		timeLogs
 	} = props;
+
 	return (
 		<Card className="habitGroup">
 			<CardHeader>
@@ -164,7 +165,7 @@ export class AddHabitGroupModal extends Component {
 			usedGroupIds     : [ 0, 1 ]
 		};
 	}
-
+	///maybe just add 1 to a number every time usedgroupID is used? ^^^^
 	toggleModal = () => {
 		this.setState({
 			isModalOpen : !this.state.isModalOpen
@@ -327,7 +328,6 @@ export class AddHabitModal extends Component {
 	};
 
 	handleSubmit = (event) => {
-		console.log(this.props.timeLogs);
 		event.preventDefault();
 		this.toggleModal();
 		const habitInfo = {

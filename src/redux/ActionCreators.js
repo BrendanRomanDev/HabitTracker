@@ -1,7 +1,39 @@
 //----------------ACTION Types End---------------------
 import * as ActionTypes from './ActionTypes';
+import axios from 'axios';
+import { baseUrl } from '../shared/baseUrl';
+import { HABITGROUPS } from '../shared/habitGroups';
+import { HABITS } from '../shared/habits';
+import { TIMELOG } from '../shared/timeLogs';
+
 //----------------ACTION CREATOR START---------------------
-//Habit Group//
+
+//GENERAL USE
+
+export const fetchItems = (itemsToFetch) => (dispatch) => {
+	dispatch(dataLoading());
+	return axios
+		.get(`${baseUrl}${itemsToFetch}`)
+		.then((res) => {
+			return res.data;
+		})
+		.catch((error) => {
+			console.log(error.response.data);
+			dispatch(dataFailed(error.response.data));
+		});
+};
+
+export const dataLoading = () => ({
+	type : ActionTypes.DATA_LOADING
+});
+
+export const dataFailed = (errMess) => ({
+	type    : ActionTypes.DATA_FAILED,
+	payload : errMess
+});
+
+//////////////////////Habit GROUP/////////////////////////
+
 export const addHabitGroup = (habitGroup) => ({
 	type    : ActionTypes.ADD_HABIT_GROUP,
 	payload : habitGroup
@@ -14,7 +46,12 @@ export const postHabitGroup = (habitGroup) => (dispatch) => {
 		groupLevel       : habitGroup.groupLevel,
 		groupDescription : habitGroup.groupDescription
 	};
-	return dispatch(addHabitGroup(newHabitGroup));
+	return axios
+		.post(baseUrl + 'habitGroups', newHabitGroup)
+		.then((res) => {
+			dispatch(addHabitGroup(res));
+		})
+		.catch((error) => console.log(error));
 };
 
 export const delHabitGroup = (habitGroup) => ({
@@ -26,7 +63,8 @@ export const removeHabitGroup = ({ id }) => (dispatch) => {
 	return dispatch(delHabitGroup(id));
 };
 
-///Habit Item
+//////////////////////Habit Item/////////////////////////
+
 export const addHabitItem = (habit) => ({
 	type    : ActionTypes.ADD_HABIT_ITEM,
 	payload : habit
@@ -37,11 +75,14 @@ export const postHabitItem = (habitItem) => (dispatch) => {
 		groupId        : habitItem.groupId,
 		id             : habitItem.id,
 		habitName      : habitItem.habitName,
-		habitHrs       : +habitItem.habitHrs,
-		habitMins      : +habitItem.habitMins,
 		habitTimeTotal : `${habitItem.habitHrs} hrs, ${habitItem.habitMins} mins`
 	};
-	return dispatch(addHabitItem(newHabit));
+	return axios
+		.post(baseUrl + 'habits', newHabit)
+		.then((res) => {
+			dispatch(addHabitItem(res));
+		})
+		.catch((error) => console.log(error));
 };
 
 export const delHabitItem = (habit) => ({
@@ -66,5 +107,11 @@ export const postTimeLog = (timeData) => (dispatch) => {
 		mins      : timeData.mins,
 		timeTotal : timeData.timeTotal
 	};
-	return dispatch(addTimeLog(newTimeLog));
+	newTimeLog.date = new Date().toISOString();
+	return axios
+		.post(baseUrl + 'timeLogs', newTimeLog)
+		.then((res) => {
+			dispatch(addTimeLog(res));
+		})
+		.catch((error) => console.log(error));
 };
