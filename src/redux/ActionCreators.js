@@ -69,7 +69,7 @@ export const removeHabitGroup = ({ id }) => (dispatch) => {
 		.then((res) => {
 			dispatch(delHabitGroup(id));
 			dispatch(removeGroupHabitItems(id));
-			// dispatch(removeGroupTimeLogs(id));
+			dispatch(removeGroupTimeLogs(id));
 		})
 		.catch((error) => console.log(error.response));
 };
@@ -79,12 +79,12 @@ export const delHabitItems = (groupId) => ({
 	type    : ActionTypes.DEL_HABIT_ITEMS,
 	payload : groupId
 });
+
 ////HABITS/GROUPID IS THE PROBLEM. IT'S DELETING THE HABIT WITH AN ID OF TWO, BECAUSE THE GROUP ID IS 2
 // The page is rendering properly
 
 export const removeGroupHabitItems = (groupId) => (dispatch) => {
 	// access habit id, run it in a loop???
-
 	return axios({
 		method  : 'DELETE',
 		url     : `${baseUrl}habits/${groupId}`,
@@ -114,6 +114,7 @@ export const removeGroupTimeLogs = (groupId) => (dispatch) => {
 		})
 		.catch((error) => console.log(error.response));
 };
+
 //////////////////////Habit Item/////////////////////////
 
 export const addHabitItems = (habitItems) => ({
@@ -142,12 +143,12 @@ export const addHabitItem = (habit) => ({
 
 export const postHabitItem = (habitItem, timeData) => (dispatch) => {
 	const newHabit = {
-		groupId        : habitItem.groupId,
+		habitGroupId   : habitItem.habitGroupId,
 		habitName      : habitItem.habitName,
 		habitTimeTotal : habitItem.habitTimeTotal
 	};
 	const newTimeLog = {
-		groupId            : timeData.groupId,
+		habitGroupId       : timeData.habitGroupId,
 		hrs                : timeData.hrs,
 		mins               : timeData.mins,
 		loggedMilliseconds : timeData.loggedMilliseconds
@@ -216,7 +217,7 @@ export const addTimeLog = (timeData) => ({
 export const postTimeLog = (timeData) => (dispatch) => {
 	const newTimeLog = {
 		habitId            : timeData.habitId,
-		groupId            : timeData.groupId,
+		habitGroupId       : timeData.habitGroupId,
 		hrs                : timeData.hrs,
 		mins               : timeData.mins,
 		loggedMilliseconds : timeData.loggedMilliseconds

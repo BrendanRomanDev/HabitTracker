@@ -27,7 +27,7 @@ export const habits = (
 				...state,
 				isLoading : false,
 				errMess   : null,
-				habits    : [ ...state.habits.filter((item) => item.groupId !== action.payload) ]
+				habits    : [ ...state.habits.filter((item) => item.habitGroupId !== action.payload) ]
 			};
 		case ActionTypes.ADD_HABIT_ITEM:
 			return {

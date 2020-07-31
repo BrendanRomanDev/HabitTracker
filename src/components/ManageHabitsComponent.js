@@ -113,7 +113,7 @@ export function ManageHabits(props) {
 export function AllHabitCards(props) {
 	const { habits, group, removeHabitItem, timeLogs, timeLogState, addTimeLog } = props;
 
-	return habits.filter((habit) => habit.groupId === group.id).map((habit) => {
+	return habits.filter((habit) => habit.habitGroupId === group.id).map((habit) => {
 		return (
 			<React.Fragment>
 				<Row>

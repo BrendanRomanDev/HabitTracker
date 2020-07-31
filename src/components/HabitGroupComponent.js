@@ -269,7 +269,7 @@ export const HabitGroupSettings = (props) => {
 //functional
 export function GroupHabitList(props) {
 	const { habitGroup, habits } = props;
-	return habits.filter((habit) => habit.groupId === habitGroup.id).map((habit) => {
+	return habits.filter((habit) => habit.habitGroupId === habitGroup.id).map((habit) => {
 		return (
 			<React.Fragment>
 				<Row>
@@ -299,7 +299,7 @@ export class AddHabitModal extends Component {
 		this.state = {
 			id                 : '',
 			isModalOpen        : false,
-			groupId            : this.props.habitGroup.id,
+			habitGroupId            : this.props.habitGroup.id,
 			habitName          : '',
 			habitHrs           : '',
 			habitMins          : '',
@@ -311,7 +311,7 @@ export class AddHabitModal extends Component {
 	toggleModal = () => {
 		this.setState({
 			isModalOpen : !this.state.isModalOpen,
-			groupId     : this.props.habitGroup.id
+			habitGroupId     : this.props.habitGroup.id
 		});
 	};
 
@@ -326,7 +326,7 @@ export class AddHabitModal extends Component {
 		event.preventDefault();
 		this.toggleModal();
 		const habitInfo = {
-			groupId        : this.props.habitGroup.id,
+			habitGroupId        : this.props.habitGroup.id,
 			habitName      : this.state.habitName,
 			habitTimeTotal : `Hrs: ${this.state.habitHrs} Min: ${this.state.habitMins}`
 		};
@@ -334,7 +334,7 @@ export class AddHabitModal extends Component {
 		const timeData = {
 			// id        : this.props.timeLogs.length,
 			habitId            : '',
-			groupId            : this.props.habitGroup.id,
+			habitGroupId            : this.props.habitGroup.id,
 			hrs                : +this.state.habitHrs,
 			mins               : +this.state.habitMins,
 			loggedMilliseconds : this.state.habitHrs * 3600000 + this.state.habitMins * 60000
@@ -354,7 +354,7 @@ export class AddHabitModal extends Component {
 		this.setState({
 			isModalOpen        : false,
 			id                 : '',
-			groupId            : this.props.habitGroup.id,
+			habitGroupId            : this.props.habitGroup.id,
 			habitName          : '',
 			habitHrs           : '',
 			habitMins          : '',
