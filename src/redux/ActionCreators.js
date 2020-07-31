@@ -27,7 +27,6 @@ export const fetchGroups = () => (dispatch) => {
 	return axios
 		.get(`${baseUrl}${'habitGroups'}`)
 		.then((res) => {
-			console.log('res.data: ', res.data);
 			dispatch(addHabitGroups(res.data));
 		})
 		.catch((error) => {

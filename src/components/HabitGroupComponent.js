@@ -24,9 +24,6 @@ import {
 } from 'reactstrap';
 import { PuffLoader, PulseLoader } from 'react-spinners';
 import { css } from '@emotion/core';
-import axios from 'axios';
-import { baseUrl } from '../shared/baseUrl';
-import uuid from 'react-uuid';
 
 ///////HABIT GROUP, CONTAINING EACH GROUP AND EACH RESPECTIVE HABIT////////
 //functional
@@ -83,7 +80,7 @@ export function GroupHeaderButtons(props) {
 	const { habitGroups, selectGroupId } = props;
 	return habitGroups.map((habitGroup) => {
 		return (
-			<Button className="btn btn-sm btn-dark" onClick={() => selectGroupId(habitGroup)}>
+			<Button key={habitGroup.id} className="btn btn-sm btn-dark" onClick={() => selectGroupId(habitGroup)}>
 				{habitGroup.groupName}
 			</Button>
 		);
@@ -271,7 +268,7 @@ export function GroupHabitList(props) {
 	const { habitGroup, habits } = props;
 	return habits.filter((habit) => habit.habitGroupId === habitGroup.id).map((habit) => {
 		return (
-			<React.Fragment>
+			<React.Fragment key={habit.id}>
 				<Row>
 					<RenderGroupHabitItem habit={habit} />
 				</Row>
@@ -299,7 +296,7 @@ export class AddHabitModal extends Component {
 		this.state = {
 			id                 : '',
 			isModalOpen        : false,
-			habitGroupId            : this.props.habitGroup.id,
+			habitGroupId       : this.props.habitGroup.id,
 			habitName          : '',
 			habitHrs           : '',
 			habitMins          : '',
@@ -310,8 +307,8 @@ export class AddHabitModal extends Component {
 
 	toggleModal = () => {
 		this.setState({
-			isModalOpen : !this.state.isModalOpen,
-			habitGroupId     : this.props.habitGroup.id
+			isModalOpen  : !this.state.isModalOpen,
+			habitGroupId : this.props.habitGroup.id
 		});
 	};
 
@@ -326,7 +323,7 @@ export class AddHabitModal extends Component {
 		event.preventDefault();
 		this.toggleModal();
 		const habitInfo = {
-			habitGroupId        : this.props.habitGroup.id,
+			habitGroupId   : this.props.habitGroup.id,
 			habitName      : this.state.habitName,
 			habitTimeTotal : `Hrs: ${this.state.habitHrs} Min: ${this.state.habitMins}`
 		};
@@ -334,7 +331,7 @@ export class AddHabitModal extends Component {
 		const timeData = {
 			// id        : this.props.timeLogs.length,
 			habitId            : '',
-			habitGroupId            : this.props.habitGroup.id,
+			habitGroupId       : this.props.habitGroup.id,
 			hrs                : +this.state.habitHrs,
 			mins               : +this.state.habitMins,
 			loggedMilliseconds : this.state.habitHrs * 3600000 + this.state.habitMins * 60000
@@ -354,7 +351,7 @@ export class AddHabitModal extends Component {
 		this.setState({
 			isModalOpen        : false,
 			id                 : '',
-			habitGroupId            : this.props.habitGroup.id,
+			habitGroupId       : this.props.habitGroup.id,
 			habitName          : '',
 			habitHrs           : '',
 			habitMins          : '',
@@ -451,7 +448,15 @@ export const GroupLoadingCard = (props) => {
 					<Button className="btn btn-sm btn-light add-habit-btn loading-plus-btn">
 						<i className="fa fa-plus" />
 					</Button>
-					<PulseLoader size={10} color={'#63c132'} loading={true} />
+					<PulseLoader
+						css={css`
+							position: relative;
+							margin-top: 20%;
+						`}
+						size={10}
+						color={'#63c132'}
+						loading={true}
+					/>
 				</div>
 			</CardBody>
 		</Card>

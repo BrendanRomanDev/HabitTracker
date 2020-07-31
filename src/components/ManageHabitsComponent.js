@@ -34,9 +34,7 @@ import {
 	fetchTimeLogs
 } from '../redux/ActionCreators';
 import { connect } from 'react-redux';
-import { timeLogs } from '../redux/timeLogReducer';
-import { PropagateLoader, PulseLoader } from 'react-spinners';
-// import { baseUrl } from '../shared/baseUrl';
+import { PulseLoader } from 'react-spinners';
 
 const mapStateToProps = (state) => {
 	return {
@@ -118,6 +116,7 @@ export function AllHabitCards(props) {
 			<React.Fragment>
 				<Row>
 					<HabitItemCard
+						key={habit.id}
 						habit={habit}
 						removeHabitItem={removeHabitItem}
 						timeLogState={timeLogState}
