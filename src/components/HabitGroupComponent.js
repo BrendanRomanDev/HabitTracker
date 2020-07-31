@@ -22,24 +22,36 @@ import {
 	DropdownItem,
 	DropdownMenu
 } from 'reactstrap';
-import { Loading } from './LoadingComponent';
+import { PuffLoader, PulseLoader } from 'react-spinners';
+import { css } from '@emotion/core';
+import axios from 'axios';
 import { baseUrl } from '../shared/baseUrl';
+import uuid from 'react-uuid';
 
 ///////HABIT GROUP, CONTAINING EACH GROUP AND EACH RESPECTIVE HABIT////////
 //functional
 export function HabitGroupCard(props) {
 	const {
+		groupLoadingState,
+		groupErrMess,
+		selectGroupId,
 		habitGroups,
 		addHabitGroup,
 		removeHabitGroup,
-		selectGroupId,
 		group,
 		habits,
 		addHabitItem,
 		addTimeLog,
+		habitsLoadingState,
+		habitsErrMess,
 		timeLogs
 	} = props;
-
+	if (groupLoadingState) {
+		return <GroupLoadingCard />;
+	}
+	if (groupErrMess) {
+		return <h4>{groupErrMess}</h4>;
+	}
 	return (
 		<Card className="habitGroup">
 			<CardHeader>
@@ -49,6 +61,8 @@ export function HabitGroupCard(props) {
 			</CardHeader>
 			<GroupCardBody
 				//group related
+				habitsLoadingState={habitsLoadingState}
+				habitsErrMess={habitsErrMess}
 				habitGroups={habitGroups}
 				habitGroup={habitGroups.filter((item) => group.id === item.id)[0]}
 				altHabitGroup={habitGroups.filter((item) => group.id !== item.id)[0]}
@@ -77,80 +91,63 @@ export function GroupHeaderButtons(props) {
 }
 
 export function GroupCardBody(props) {
-	const { habitGroup, altHabitGroup, removeHabitGroup, habits, addHabitItem, addTimeLog, timeLogs } = props;
+	const {
+		habitGroup,
+		altHabitGroup,
+		removeHabitGroup,
+		habits,
+		addHabitItem,
+		addTimeLog,
+		timeLogs,
+		habitsLoadingState,
+		habitsErrMess
+	} = props;
+	let usedGroup;
 	if (habitGroup) {
-		return (
-			<CardBody className="habitGroup text-center">
-				<HabitGroupSettings removeHabitGroup={removeHabitGroup} habitGroup={habitGroup} />
-				<h2 className="mb-2">{habitGroup.groupName}</h2>
-				<div className="lvlCircle mb-3">
-					<svg width="100" height="100">
-						<circle cx="50" cy="50" r="45" fill="#63C132" />
-					</svg>
-					<h1 className="component-level habitGroup">{habitGroup.groupLevel}</h1>
-				</div>
-				<Row>
-					<Col>
-						<h6 className="text-left text-muted">0 / 400</h6>
-					</Col>
-					<Col>
-						<h6 className="text-right text-muted">0%</h6>
-					</Col>
-				</Row>
-				<div className="progress mb-4">
-					<div className="progress-bar bg-info" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" />
-				</div>
-				<div className="card-stats-div mt-4">
-					<h5 className="mb-3 font-weight-bold">Commitments</h5>
-					<hr />
-					<AddHabitModal
-						addHabitItem={addHabitItem}
-						habitGroup={habitGroup}
-						habits={habits}
-						timeLogs={timeLogs}
-						addTimeLog={addTimeLog}
-					/>
-					<GroupHabitList habitGroup={habitGroup} habits={habits} />
-				</div>
-			</CardBody>
-		);
+		usedGroup = habitGroup;
 	} else {
-		return (
-			<CardBody className="habitGroup text-center">
-				<HabitGroupSettings removeHabitGroup={removeHabitGroup} habitGroup={altHabitGroup} />
-				<h2 className="mb-2">{altHabitGroup.groupName}</h2>
-				<div className="lvlCircle mb-3">
-					<svg width="100" height="100">
-						<circle cx="50" cy="50" r="45" fill="#63C132" />
-					</svg>
-					<h1 className="component-level habitGroup">{altHabitGroup.groupLevel}</h1>
-				</div>
-				<Row>
-					<Col>
-						<h6 className="text-left text-muted">300 / 400</h6>
-					</Col>
-					<Col>
-						<h6 className="text-right text-muted">75%</h6>
-					</Col>
-				</Row>
-				<div className="progress mb-4">
-					<div className="progress-bar bg-info" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" />
-				</div>
-				<div className="card-stats-div mt-4">
-					<h5 className="mb-3 font-weight-bold">Commitments</h5>
-					<hr />
-					<AddHabitModal
-						addHabitItem={addHabitItem}
-						habitGroup={altHabitGroup}
-						habits={habits}
-						timeLogs={timeLogs}
-						addTimeLog={addTimeLog}
-					/>
-					<GroupHabitList habitGroup={altHabitGroup} habits={habits} />
-				</div>
-			</CardBody>
-		);
+		usedGroup = altHabitGroup;
 	}
+	return (
+		<CardBody className="habitGroup text-center">
+			<HabitGroupSettings removeHabitGroup={removeHabitGroup} habitGroup={usedGroup} />
+			<h2 className="mb-2">{usedGroup.groupName}</h2>
+			<div className="lvlCircle mb-3">
+				<svg width="100" height="100">
+					<circle cx="50" cy="50" r="45" fill="#63C132" />
+				</svg>
+				<h1 className="component-level habitGroup">{usedGroup.groupLevel}</h1>
+			</div>
+			<Row>
+				<Col>
+					<h6 className="text-left text-muted">0 / 400</h6>
+				</Col>
+				<Col>
+					<h6 className="text-right text-muted">0%</h6>
+				</Col>
+			</Row>
+			<div className="progress mb-4">
+				<div className="progress-bar bg-info" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" />
+			</div>
+			<div className="card-stats-div mt-4">
+				<h5 className="mb-3 font-weight-bold">Commitments</h5>
+				<hr />
+				<AddHabitModal
+					addHabitItem={addHabitItem}
+					habitGroup={usedGroup}
+					habits={habits}
+					timeLogs={timeLogs}
+					addTimeLog={addTimeLog}
+				/>
+				<GroupHabitList
+					habitGroup={usedGroup}
+					habits={habits}
+					habitsLoadingState={habitsLoadingState}
+					habitsErrMess={habitsErrMess}
+				/>
+			</div>
+		</CardBody>
+	);
 }
 
 export class AddHabitGroupModal extends Component {
@@ -158,14 +155,13 @@ export class AddHabitGroupModal extends Component {
 		super(props);
 		this.state = {
 			isModalOpen      : false,
-			id               : '',
+			// id               : '',
 			groupName        : '',
 			groupLevel       : '',
-			groupDescription : '',
-			usedGroupIds     : [ 0, 1 ]
+			groupDescription : ''
 		};
 	}
-	///maybe just add 1 to a number every time usedgroupID is used? ^^^^
+
 	toggleModal = () => {
 		this.setState({
 			isModalOpen : !this.state.isModalOpen
@@ -174,7 +170,7 @@ export class AddHabitGroupModal extends Component {
 
 	handleGroupChange = (event) => {
 		this.setState({
-			id                  : this.state.usedGroupIds.length,
+			// id                  : this.state.usedGroupIds.length,
 			[event.target.name]: event.target.value
 		});
 	};
@@ -182,7 +178,6 @@ export class AddHabitGroupModal extends Component {
 	handleGroupSubmit = (event) => {
 		event.preventDefault();
 		const habitGroupToAdd = {
-			id               : this.state.id,
 			groupName        : this.state.groupName,
 			groupLevel       : this.state.groupLevel,
 			groupDescription : this.state.groupDescription
@@ -191,12 +186,12 @@ export class AddHabitGroupModal extends Component {
 			this.props.addHabitGroup(habitGroupToAdd);
 			this.setState({
 				isModalOpen      : false,
-				id               : '',
+				// id               : '',
 				groupName        : '',
 				groupLevel       : '',
 				groupDescription : '',
-				groupTimeTotal   : 0,
-				usedGroupIds     : [ ...this.state.usedGroupIds.concat(this.state.id) ]
+				groupTimeTotal   : ''
+				// usedGroupIds     : [ ...this.state.usedGroupIds.concat(this.state.id) ]
 			});
 		} else {
 			alert('Habit Category cannot be blank');
@@ -302,14 +297,14 @@ export class AddHabitModal extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			isModalOpen    : false,
-			id             : '',
-			groupId        : this.props.habitGroup.id,
-			habitName      : '',
-			habitHrs       : '',
-			habitMins      : '',
-			habitTimeTotal : '',
-			usedItemIds    : [ 0 ]
+			id                 : '',
+			isModalOpen        : false,
+			groupId            : this.props.habitGroup.id,
+			habitName          : '',
+			habitHrs           : '',
+			habitMins          : '',
+			loggedMilliseconds : ''
+			// usedItemIds    : //
 		};
 	}
 
@@ -322,7 +317,7 @@ export class AddHabitModal extends Component {
 
 	handleInputChange = (event) => {
 		this.setState({
-			id                  : this.state.usedItemIds.length,
+			// id                  : this.state.usedItemIds.length,
 			[event.target.name]: event.target.value
 		});
 	};
@@ -331,34 +326,43 @@ export class AddHabitModal extends Component {
 		event.preventDefault();
 		this.toggleModal();
 		const habitInfo = {
-			id        : this.state.id,
-			groupId   : this.props.habitGroup.id,
-			habitName : this.state.habitName
+			groupId        : this.props.habitGroup.id,
+			habitName      : this.state.habitName,
+			habitTimeTotal : `Hrs: ${this.state.habitHrs} Min: ${this.state.habitMins}`
 		};
 
 		const timeData = {
-			id        : this.props.timeLogs.length,
-			habitId   : this.state.id,
-			groupId   : this.props.habitGroup.id,
-			hrs       : +this.state.habitHrs,
-			mins      : +this.state.habitMins,
-			timeTotal : this.state.habitTimeTotal
+			// id        : this.props.timeLogs.length,
+			habitId            : '',
+			groupId            : this.props.habitGroup.id,
+			hrs                : +this.state.habitHrs,
+			mins               : +this.state.habitMins,
+			loggedMilliseconds : this.state.habitHrs * 3600000 + this.state.habitMins * 60000
 		};
-		this.props.addHabitItem(habitInfo);
-		this.props.addTimeLog(timeData);
+
+		this.props.addHabitItem(habitInfo, timeData);
+
+		// const postHabitWithTimeLog = async () => {
+		// 	await this.props.addHabitItem(habitInfo);
+		// 	const res = await axios.get(`${baseUrl}habits`);
+		// 	const newId = res.data[res.data.length - 1].id;
+		// 	timeData.habitId = newId;
+		// 	this.props.addTimeLog(timeData);
+		// };
+		// postHabitWithTimeLog();
+
 		this.setState({
-			isModalOpen    : false,
-			id             : '',
-			groupId        : this.props.habitGroup.id,
-			habitName      : '',
-			habitHrs       : '',
-			habitMins      : '',
-			habitTimeTotal : '',
-			usedItemIds    : [ ...this.state.usedItemIds.concat(this.state.id) ]
+			isModalOpen        : false,
+			id                 : '',
+			groupId            : this.props.habitGroup.id,
+			habitName          : '',
+			habitHrs           : '',
+			habitMins          : '',
+			loggedMilliseconds : ''
+			// usedItemIds    : [ ...this.state.usedItemIds.concat(this.state.id) ]
 		});
 	};
-	//props.timelogs...
-	//props.addTimeLog(timeData)
+
 	render() {
 		return (
 			<React.Fragment>
@@ -416,3 +420,40 @@ export class AddHabitModal extends Component {
 		);
 	}
 }
+
+export const GroupLoadingCard = (props) => {
+	return (
+		<Card className="habitGroup">
+			<CardHeader>
+				<Button className="btn btn-sm btn-dark">Loading...</Button>
+				<Button type="button" className="btn btn-sm btn-light add-habit-group-btn loading-plus-btn">
+					<i className="fa fa-plus" />
+				</Button>
+				<hr />
+			</CardHeader>
+			<CardBody className="text-center habitGroup">
+				<HabitGroupSettings />
+				<PuffLoader
+					css={css`
+						position: relative;
+						margin-top: 62px;
+						left: 50%;
+						transform: translateX(-50%);
+					`}
+					size={60}
+					color={'#63c132'}
+					loading={true}
+				/>
+				<h6 style={{ margin: '25% auto 0' }}>Loading...</h6>
+				<div className="card-stats-div">
+					<h5 className=" mt-4 font-weight-bold">Commitments</h5>
+					<hr />
+					<Button className="btn btn-sm btn-light add-habit-btn loading-plus-btn">
+						<i className="fa fa-plus" />
+					</Button>
+					<PulseLoader size={10} color={'#63c132'} loading={true} />
+				</div>
+			</CardBody>
+		</Card>
+	);
+};

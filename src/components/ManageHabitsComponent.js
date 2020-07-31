@@ -23,16 +23,19 @@ import {
 	DropdownMenu
 } from 'reactstrap';
 import { HabitGroupCard } from './HabitGroupComponent';
-// import { Loading } from './LoadingComponent';
 import {
 	postHabitGroup,
 	postHabitItem,
 	removeHabitGroup,
 	removeHabitItem,
 	postTimeLog,
-	fetchItems
+	fetchGroups,
+	fetchHabits,
+	fetchTimeLogs
 } from '../redux/ActionCreators';
 import { connect } from 'react-redux';
+import { timeLogs } from '../redux/timeLogReducer';
+import { PropagateLoader, PulseLoader } from 'react-spinners';
 // import { baseUrl } from '../shared/baseUrl';
 
 const mapStateToProps = (state) => {
@@ -43,93 +46,82 @@ const mapStateToProps = (state) => {
 	};
 };
 
-const mapDispatchToProps = (dispatch) => ({
-	getItems               : (itemsToFetch) => {
-		dispatch(fetchItems(itemsToFetch));
-	},
-	handlePostHabitGroup   : (habitGroup) => {
-		dispatch(postHabitGroup(habitGroup));
-	},
-	handlePostHabitItem    : (habit) => {
-		dispatch(postHabitItem(habit));
-	},
-	handleRemoveHabitGroup : (habitGroup) => {
-		dispatch(removeHabitGroup(habitGroup));
-	},
-	handleRemoveHabititem  : (habit) => {
-		dispatch(removeHabitItem(habit));
-	},
-	handlePostTimeLog      : (timeData) => {
-		dispatch(postTimeLog(timeData));
-	}
-});
+const mapDispatchToProps = {
+	fetchGroups,
+	fetchHabits,
+	fetchTimeLogs,
+	postHabitGroup,
+	postHabitItem,
+	removeHabitGroup,
+	removeHabitItem,
+	postTimeLog
+};
 
 export function ManageHabits(props) {
+	const groupLoadingState = props.habitGroupsState.isLoading;
+	const groupErrMess = props.habitGroupsState.errMess;
+	const habitsLoadingState = props.habitsState.isLoading;
+	const habitsErrMess = props.habitsState.errMess;
+	// const timeLogLoadingState = props.timeLogs.isLoading;
+
 	useEffect(() => {
-		props.getItems('habitGroups');
-	});
-	useEffect(() => {
-		props.getItems('habits');
-	});
-	useEffect(() => {
-		props.getItems('timeLogs');
-	});
+		props.fetchGroups();
+		props.fetchHabits();
+		props.fetchTimeLogs();
+	}, []);
 	const [ group, setGroup ] = useState({ id: 0 });
 	const selectGroupId = (habitGroup) => {
 		setGroup(habitGroup);
 	};
 
-	// if (props.habitGroupsState.habitGroups.isLoading) {
-	// 	return <Loading />;
-	// }
-	// if (props.habitGroupsState.habitGroups.errMess) {
-	// 	return <h4>{props.habitGroupsState.habitGroups.errMess}</h4>;
-	// }
-
 	return (
 		<Container className="main">
 			<HabitGroupCard
+				//general use
 				//habit group related
 				habitGroups={props.habitGroupsState.habitGroups}
-				addHabitGroup={props.handlePostHabitGroup}
-				removeHabitGroup={props.handleRemoveHabitGroup}
+				addHabitGroup={props.postHabitGroup}
+				removeHabitGroup={props.removeHabitGroup}
 				selectGroupId={selectGroupId}
 				group={group}
+				groupLoadingState={groupLoadingState}
+				groupErrMess={groupErrMess}
 				//habit item related
 				habits={props.habitsState.habits}
-				addHabitItem={props.handlePostHabitItem}
+				addHabitItem={props.postHabitItem}
+				habitsLoadingState={habitsLoadingState}
+				habitsErrMess={habitsErrMess}
 				//time log related
 				timeLogs={props.timeLogState.timeLogs}
-				addTimeLog={props.handlePostTimeLog}
+				addTimeLog={props.postTimeLog}
 			/>
 			<AllHabitCards
-				dataLoading={props.handleDataLoading}
-				dataFailed={props.handleDataFail}
 				//habit group related
 				group={group}
 				selectGroupId={selectGroupId}
 				//habit item related
 				habits={props.habitsState.habits}
-				removeHabitItem={props.handleRemoveHabititem}
+				removeHabitItem={props.removeHabitItem}
 				timeLogs={props.timeLogState.timeLogs}
-				addTimeLog={props.handlePostTimeLog}
+				timeLogState={props.timeLogState}
+				addTimeLog={props.postTimeLog}
 			/>
 		</Container>
 	);
 }
 ///GET EACH CARD RENDERING THE TIMELOGS PROPERLY based on the filter data!!!
 export function AllHabitCards(props) {
-	const { habits, group, removeHabitItem, timeLogs, addTimeLog } = props;
+	const { habits, group, removeHabitItem, timeLogs, timeLogState, addTimeLog } = props;
+
 	return habits.filter((habit) => habit.groupId === group.id).map((habit) => {
 		return (
 			<React.Fragment>
 				<Row>
 					<HabitItemCard
-						dataLoading={props.handleDataLoading}
-						dataFailed={props.handleDataFail}
 						habit={habit}
 						removeHabitItem={removeHabitItem}
-						timeLog={timeLogs.filter((timeLog) => timeLog.habitId === habit.id)}
+						timeLogState={timeLogState}
+						timeLog={timeLogs.filter((timeLog) => timeLog.habitId === habit.id)[0]}
 					/>
 				</Row>
 			</React.Fragment>
@@ -139,7 +131,10 @@ export function AllHabitCards(props) {
 //For every item belonging to the selected Habit Group, Display a Card for EACH habit item belonging to it.
 
 export function HabitItemCard(props) {
-	const { habit, removeHabitItem, timeLog } = props;
+	const { habit, removeHabitItem, timeLogState, timeLog } = props;
+
+	// calcHrsAndMins(timeLog.loggedMilliseconds);
+
 	return (
 		<Card className="card habitItem text-center">
 			<CardHeader className="card-header m-0">
@@ -178,7 +173,9 @@ export function HabitItemCard(props) {
 					<h4 className="mb-2">Today</h4>
 					<div className="row">
 						<div className="col my-2 text-left">Time Invested</div>
-						<div className="col my-2">{timeLog.id ? timeLog.hrs : 0}</div>
+						<div className="col my-2">
+							<RenderTimeLog timeLogState={timeLogState} timeLog={timeLog} />
+						</div>
 					</div>
 					<hr className="card-stats-hr" />
 					<div className="row">
@@ -215,7 +212,14 @@ export const HabitItemSettings = (props) => {
 		</ButtonDropdown>
 	);
 };
-
-//
+///SOMETHING ISN'T RIGHT HERE.. NEEDS TO BE ASYNC OR SOMETHING, TIMElOGsTATE ISN'T LAODING RIGHT???
+export function RenderTimeLog({ timeLogState, timeLog }) {
+	if (timeLog) {
+		const hrs = Math.floor(timeLog.loggedMilliseconds / 3600000);
+		const min = Math.floor((timeLog.loggedMilliseconds - hrs * 3600000) / 60000);
+		return <h6>{`${hrs}hrs, ${min} min`}</h6>;
+	}
+	return <PulseLoader size={3} color={'#63c132'} loading={true} />;
+}
 
 export default connect(mapStateToProps, mapDispatchToProps)(ManageHabits);

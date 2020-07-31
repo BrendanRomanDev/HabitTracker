@@ -8,7 +8,7 @@ export const HABITGROUPS = [
 	{
 		id               : 1,
 		groupName        : 'Fitness',
-		groupLevel       : '7',
-		groupDescription : 'get in shape dawg'
+		groupLevel       : '2',
+		groupDescription : 'Get healthier.'
 	}
 ];
