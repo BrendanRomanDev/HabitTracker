@@ -7,8 +7,6 @@ Resources & Frameworks
 
 I am currently developing the backend funtionality using Node, Express, and MongoDb. JSON server is being utilized for interim testing. 
 
-<blockquote class="imgur-embed-pub" lang="en" data-id="gH9PFkF"><a href="//imgur.com/gH9PFkF"></a></blockquote><script async src="//s.imgur.com/min/embed.js" charset="utf-8"></script>
+![Front-End Schematic](https://i.imgur.com/gH9PFkF.png)
 
-![Front-End Schematic](https://imgur.com/gH9PFkF)
-
-![Base Component UI](https://imgur.com/8iPjDaL)
+![Base Component UI](https://i.imgur.com/8iPjDaL.png)
