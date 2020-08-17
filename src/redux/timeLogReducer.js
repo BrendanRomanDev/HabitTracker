@@ -21,12 +21,19 @@ export const timeLogs = (
 				errMess   : null,
 				timeLogs  : action.payload
 			};
-		case ActionTypes.DEL_HABIT_ITEMS:
+		case ActionTypes.DEL_GROUP_TIMELOGS:
 			return {
 				...state,
 				isLoading : false,
 				errMess   : null,
-				timeLogs  : [ ...state.timeLogs.filter((item) => item.groupId !== action.payload) ]
+				timeLogs  : [ ...state.timeLogs.filter((item) => item.habitGroupId !== action.payload) ]
+			};
+		case ActionTypes.DEL_HABIT_TIMELOGS:
+			return {
+				...state,
+				isLoading : false,
+				errMess   : null,
+				timeLogs  : [ ...state.timeLogs.filter((item) => item.habitId !== action.payload) ]
 			};
 		case ActionTypes.ADD_TIMELOG:
 			return {

@@ -27,7 +27,6 @@ export const fetchGroups = () => (dispatch) => {
 	return axios
 		.get(`${baseUrl}${'habitGroups'}`)
 		.then((res) => {
-			console.log('res.data: ', res.data);
 			dispatch(addHabitGroups(res.data));
 		})
 		.catch((error) => {
@@ -68,52 +67,23 @@ export const removeHabitGroup = ({ id }) => (dispatch) => {
 	})
 		.then((res) => {
 			dispatch(delHabitGroup(id));
-			dispatch(removeGroupHabitItems(id));
-			dispatch(removeGroupTimeLogs(id));
+			dispatch(delGroupHabitItems(id));
+			dispatch(delGroupTimeLogs(id));
 		})
 		.catch((error) => console.log(error.response));
 };
 
 //DELETE MULTIPLE HABIT ITEMS (EX: IN ONE HABIT GROUP)
-export const delHabitItems = (groupId) => ({
+export const delGroupHabitItems = (groupId) => ({
 	type    : ActionTypes.DEL_HABIT_ITEMS,
 	payload : groupId
 });
 
-////HABITS/GROUPID IS THE PROBLEM. IT'S DELETING THE HABIT WITH AN ID OF TWO, BECAUSE THE GROUP ID IS 2
-// The page is rendering properly
-
-export const removeGroupHabitItems = (groupId) => (dispatch) => {
-	// access habit id, run it in a loop???
-	return axios({
-		method  : 'DELETE',
-		url     : `${baseUrl}habits/${groupId}`,
-		headers : { 'Content-Type': 'application/json' }
-	})
-		.then((res) => {
-			console.log(res);
-			dispatch(delHabitItems(groupId));
-		})
-		.catch((error) => console.log(error.response));
-};
-
 //DELETE MULTIPLE TimeLogs (EX: IN ONE HABIT GROUP)
-export const delTimeLogs = (groupId) => ({
-	type    : ActionTypes.DEL_TIME_LOGS,
+export const delGroupTimeLogs = (groupId) => ({
+	type    : ActionTypes.DEL_GROUP_TIMELOGS,
 	payload : groupId
 });
-
-export const removeGroupTimeLogs = (groupId) => (dispatch) => {
-	return axios({
-		method  : 'DELETE',
-		url     : `${baseUrl}timeLogs/${groupId}`,
-		headers : { 'Content-Type': 'application/json' }
-	})
-		.then((res) => {
-			dispatch(delTimeLogs(groupId));
-		})
-		.catch((error) => console.log(error.response));
-};
 
 //////////////////////Habit Item/////////////////////////
 
@@ -143,9 +113,9 @@ export const addHabitItem = (habit) => ({
 
 export const postHabitItem = (habitItem, timeData) => (dispatch) => {
 	const newHabit = {
-		habitGroupId   : habitItem.habitGroupId,
-		habitName      : habitItem.habitName,
-		habitTimeTotal : habitItem.habitTimeTotal
+		habitGroupId       : habitItem.habitGroupId,
+		habitName          : habitItem.habitName,
+		targetMilliseconds : habitItem.targetMilliseconds
 	};
 	const newTimeLog = {
 		habitGroupId       : timeData.habitGroupId,
@@ -174,8 +144,12 @@ export const delHabitItem = (habitId) => ({
 	payload : habitId
 });
 
+export const delHabitTimeLogs = (habitId) => ({
+	type    : ActionTypes.DEL_HABIT_TIMELOGS,
+	payload : habitId
+});
+
 export const removeHabitItem = ({ id }) => (dispatch) => {
-	console.log('CLICKED AND RES DATA SHOULD LOAD');
 	axios({
 		method  : 'DELETE',
 		url     : `${baseUrl}habits/${id}`,
@@ -184,6 +158,7 @@ export const removeHabitItem = ({ id }) => (dispatch) => {
 		.then((res) => {
 			console.log('RES DELETE DATA', res.data);
 			dispatch(delHabitItem(id));
+			dispatch(delHabitTimeLogs(id));
 		})
 		.catch((error) => {
 			console.log('removeHabitItem Error!!!', error.response);

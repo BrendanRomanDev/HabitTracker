@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Container } from 'reactstrap';
 import { Dashboard } from './DashboardComponent';
-import { connect } from 'react-redux';
+// import { connect } from 'react-redux';
 
 class Main extends Component {
 	render() {

@@ -24,9 +24,6 @@ import {
 } from 'reactstrap';
 import { PuffLoader, PulseLoader } from 'react-spinners';
 import { css } from '@emotion/core';
-import axios from 'axios';
-import { baseUrl } from '../shared/baseUrl';
-import uuid from 'react-uuid';
 
 ///////HABIT GROUP, CONTAINING EACH GROUP AND EACH RESPECTIVE HABIT////////
 //functional
@@ -83,7 +80,7 @@ export function GroupHeaderButtons(props) {
 	const { habitGroups, selectGroupId } = props;
 	return habitGroups.map((habitGroup) => {
 		return (
-			<Button className="btn btn-sm btn-dark" onClick={() => selectGroupId(habitGroup)}>
+			<Button key={habitGroup.id} className="btn btn-sm btn-dark" onClick={() => selectGroupId(habitGroup)}>
 				{habitGroup.groupName}
 			</Button>
 		);
@@ -155,9 +152,7 @@ export class AddHabitGroupModal extends Component {
 		super(props);
 		this.state = {
 			isModalOpen      : false,
-			// id               : '',
 			groupName        : '',
-			groupLevel       : '',
 			groupDescription : ''
 		};
 	}
@@ -179,19 +174,14 @@ export class AddHabitGroupModal extends Component {
 		event.preventDefault();
 		const habitGroupToAdd = {
 			groupName        : this.state.groupName,
-			groupLevel       : this.state.groupLevel,
 			groupDescription : this.state.groupDescription
 		};
 		if (habitGroupToAdd.groupName) {
 			this.props.addHabitGroup(habitGroupToAdd);
 			this.setState({
 				isModalOpen      : false,
-				// id               : '',
 				groupName        : '',
-				groupLevel       : '',
-				groupDescription : '',
-				groupTimeTotal   : ''
-				// usedGroupIds     : [ ...this.state.usedGroupIds.concat(this.state.id) ]
+				groupDescription : ''
 			});
 		} else {
 			alert('Habit Category cannot be blank');
@@ -258,7 +248,9 @@ export const HabitGroupSettings = (props) => {
 			</DropdownToggle>
 			<DropdownMenu>
 				<DropdownItem>
-					<div onClick={() => removeHabitGroup(habitGroup)}>Delete</div>
+					<div onClick={() => removeHabitGroup(habitGroup)}>
+						<i className="fa fa-trash" /> Delete
+					</div>
 				</DropdownItem>
 			</DropdownMenu>
 		</ButtonDropdown>
@@ -271,7 +263,7 @@ export function GroupHabitList(props) {
 	const { habitGroup, habits } = props;
 	return habits.filter((habit) => habit.habitGroupId === habitGroup.id).map((habit) => {
 		return (
-			<React.Fragment>
+			<React.Fragment key={habit.id}>
 				<Row>
 					<RenderGroupHabitItem habit={habit} />
 				</Row>
@@ -299,10 +291,12 @@ export class AddHabitModal extends Component {
 		this.state = {
 			id                 : '',
 			isModalOpen        : false,
-			habitGroupId            : this.props.habitGroup.id,
+			habitGroupId       : this.props.habitGroup.id,
 			habitName          : '',
 			habitHrs           : '',
 			habitMins          : '',
+			targetHrs          : '',
+			targetMilliseconds : '',
 			loggedMilliseconds : ''
 			// usedItemIds    : //
 		};
@@ -310,8 +304,8 @@ export class AddHabitModal extends Component {
 
 	toggleModal = () => {
 		this.setState({
-			isModalOpen : !this.state.isModalOpen,
-			habitGroupId     : this.props.habitGroup.id
+			isModalOpen  : !this.state.isModalOpen,
+			habitGroupId : this.props.habitGroup.id
 		});
 	};
 
@@ -326,15 +320,15 @@ export class AddHabitModal extends Component {
 		event.preventDefault();
 		this.toggleModal();
 		const habitInfo = {
-			habitGroupId        : this.props.habitGroup.id,
-			habitName      : this.state.habitName,
-			habitTimeTotal : `Hrs: ${this.state.habitHrs} Min: ${this.state.habitMins}`
+			habitGroupId       : this.props.habitGroup.id,
+			habitName          : this.state.habitName,
+			targetMilliseconds : this.state.targetHrs * 3600000
 		};
 
 		const timeData = {
 			// id        : this.props.timeLogs.length,
 			habitId            : '',
-			habitGroupId            : this.props.habitGroup.id,
+			habitGroupId       : this.props.habitGroup.id,
 			hrs                : +this.state.habitHrs,
 			mins               : +this.state.habitMins,
 			loggedMilliseconds : this.state.habitHrs * 3600000 + this.state.habitMins * 60000
@@ -342,22 +336,15 @@ export class AddHabitModal extends Component {
 
 		this.props.addHabitItem(habitInfo, timeData);
 
-		// const postHabitWithTimeLog = async () => {
-		// 	await this.props.addHabitItem(habitInfo);
-		// 	const res = await axios.get(`${baseUrl}habits`);
-		// 	const newId = res.data[res.data.length - 1].id;
-		// 	timeData.habitId = newId;
-		// 	this.props.addTimeLog(timeData);
-		// };
-		// postHabitWithTimeLog();
-
 		this.setState({
 			isModalOpen        : false,
 			id                 : '',
-			habitGroupId            : this.props.habitGroup.id,
+			habitGroupId       : this.props.habitGroup.id,
 			habitName          : '',
 			habitHrs           : '',
 			habitMins          : '',
+			targetHrs          : '',
+			targetMilliseconds : '',
 			loggedMilliseconds : ''
 			// usedItemIds    : [ ...this.state.usedItemIds.concat(this.state.id) ]
 		});
@@ -394,6 +381,7 @@ export class AddHabitModal extends Component {
 										type="number"
 										name="habitHrs"
 										placeholder="Hours"
+										min="0"
 										onChange={(event) => this.handleInputChange(event)}
 										value={this.state.habitHrs}
 									/>
@@ -403,6 +391,7 @@ export class AddHabitModal extends Component {
 									<Input
 										type="number"
 										max="59"
+										min="0"
 										name="habitMins"
 										placeholder="Mins"
 										onChange={(event) => this.handleInputChange(event)}
@@ -410,6 +399,16 @@ export class AddHabitModal extends Component {
 									/>
 								</Col>
 							</FormGroup>
+							<Label htmlFor="targetHrs">Hours to Mastery</Label>
+							<Input
+								type="number"
+								min="0"
+								name="targetHrs"
+								placeholder="Ex: 500"
+								onChange={(event) => this.handleInputChange(event)}
+								value={this.state.targetHrs}
+							/>
+							<FormGroup />
 							<Button type="submit" value="submit" color="secondary">
 								Add Habit
 							</Button>
@@ -451,7 +450,15 @@ export const GroupLoadingCard = (props) => {
 					<Button className="btn btn-sm btn-light add-habit-btn loading-plus-btn">
 						<i className="fa fa-plus" />
 					</Button>
-					<PulseLoader size={10} color={'#63c132'} loading={true} />
+					<PulseLoader
+						css={css`
+							position: relative;
+							margin-top: 20%;
+						`}
+						size={10}
+						color={'#63c132'}
+						loading={true}
+					/>
 				</div>
 			</CardBody>
 		</Card>
