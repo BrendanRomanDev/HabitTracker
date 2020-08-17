@@ -18,4 +18,5 @@ export const DEL_HABIT_ITEMS = 'DEL_HABIT_ITEMS';
 ///TimeLog
 export const ADD_TIMELOGS = 'ADD_TIMELOGS';
 export const ADD_TIMELOG = 'ADD_TIMELOG';
-export const DEL_TIME_LOGS = 'DEL_TIME_LOGS';
+export const DEL_GROUP_TIMELOGS = 'DEL_GROUP_TIMELOGS';
+export const DEL_HABIT_TIMELOGS = 'DEL_HABIT_TIMELOGS';

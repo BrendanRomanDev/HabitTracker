@@ -120,7 +120,12 @@ export function AllHabitCards(props) {
 						habit={habit}
 						removeHabitItem={removeHabitItem}
 						timeLogState={timeLogState}
-						timeLog={timeLogs.filter((timeLog) => timeLog.habitId === habit.id)[0]}
+						timeLog={timeLogs.filter((timeLog) => timeLog.habitId === habit.id).reduce((a, b) => {
+							return {
+								loggedMilliseconds : a.loggedMilliseconds + b.loggedMilliseconds
+							};
+						}, { loggedMilliseconds: 0 })}
+						addTimeLog={addTimeLog}
 					/>
 				</Row>
 			</React.Fragment>
@@ -130,7 +135,7 @@ export function AllHabitCards(props) {
 //For every item belonging to the selected Habit Group, Display a Card for EACH habit item belonging to it.
 
 export function HabitItemCard(props) {
-	const { habit, removeHabitItem, timeLogState, timeLog } = props;
+	const { habit, removeHabitItem, timeLogState, timeLog, addTimeLog } = props;
 
 	// calcHrsAndMins(timeLog.loggedMilliseconds);
 
@@ -149,9 +154,7 @@ export function HabitItemCard(props) {
 								<circle cx="25" cy="25" r="25" fill="#63C132" />
 							</svg>
 							<h1 className="component-level habitItem">31</h1>
-							<Button className="btn btn-light log-time-btn">
-								<i className="fa fa-plus m-0" />
-							</Button>
+							<AddTimeLogModal habit={habit} addTimeLog={addTimeLog} />
 						</div>
 					</Col>
 					<Col className="col-9">
@@ -205,14 +208,16 @@ export const HabitItemSettings = (props) => {
 			</DropdownToggle>
 			<DropdownMenu>
 				<DropdownItem>
-					<div onClick={() => removeHabitItem(habit)}>Delete</div>
+					<div onClick={() => removeHabitItem(habit)}>
+						<i className="fa fa-trash" /> Delete
+					</div>
 				</DropdownItem>
 			</DropdownMenu>
 		</ButtonDropdown>
 	);
 };
-///SOMETHING ISN'T RIGHT HERE.. NEEDS TO BE ASYNC OR SOMETHING, TIMElOGsTATE ISN'T LAODING RIGHT???
-export function RenderTimeLog({ timeLogState, timeLog }) {
+
+export function RenderTimeLog({ timeLog }) {
 	if (timeLog) {
 		const hrs = Math.floor(timeLog.loggedMilliseconds / 3600000);
 		const min = Math.floor((timeLog.loggedMilliseconds - hrs * 3600000) / 60000);
@@ -222,3 +227,102 @@ export function RenderTimeLog({ timeLogState, timeLog }) {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ManageHabits);
+
+export class AddTimeLogModal extends Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			id                 : '',
+			isModalOpen        : false,
+			habitGroupId       : this.props.habit.habitGroupId,
+			habitId            : this.props.habit.id,
+			habitHrs           : '',
+			habitMins          : '',
+			loggedMilliseconds : ''
+		};
+	}
+
+	toggleModal = () => {
+		this.setState({
+			isModalOpen : !this.state.isModalOpen
+		});
+	};
+
+	handleInputChange = (event) => {
+		this.setState({
+			[event.target.name]: event.target.value
+		});
+	};
+
+	handleSubmit = (event) => {
+		event.preventDefault();
+		this.toggleModal();
+
+		const timeData = {
+			habitId            : this.props.habit.id,
+			habitGroupId       : this.props.habit.habitGroupId,
+			hrs                : +this.state.habitHrs,
+			mins               : +this.state.habitMins,
+			loggedMilliseconds : this.state.habitHrs * 3600000 + this.state.habitMins * 60000
+		};
+
+		this.props.addTimeLog(timeData);
+
+		this.setState({
+			id                 : '',
+			isModalOpen        : false,
+			habitGroupId       : this.props.habit.habitGroupId,
+			habitId            : this.props.habit.id,
+			habitHrs           : '',
+			habitMins          : '',
+			loggedMilliseconds : ''
+		});
+	};
+
+	render() {
+		return (
+			<React.Fragment>
+				<Button onClick={this.toggleModal} className="btn btn-light log-time-btn">
+					<i className="fa fa-plus m-0" />
+				</Button>
+				<Modal isOpen={this.state.isModalOpen} toggle={this.toggleModal}>
+					<ModalHeader toggle={this.toggleModal}>{this.props.habit.habitName}</ModalHeader>
+					<ModalBody>
+						<Form onSubmit={(event) => this.handleSubmit(event)}>
+							<Label htmlFor="habitHours">Log Time</Label>
+
+							<FormGroup className="row">
+								<Col xs={3}>
+									<Input
+										type="number"
+										name="habitHrs"
+										placeholder="Hours"
+										min="0"
+										onChange={(event) => this.handleInputChange(event)}
+										value={this.state.habitHrs}
+									/>
+								</Col>
+
+								<Col xs={3}>
+									<Input
+										type="number"
+										max="59"
+										min="0"
+										name="habitMins"
+										placeholder="Mins"
+										onChange={(event) => this.handleInputChange(event)}
+										value={this.state.habitMins}
+									/>
+								</Col>
+							</FormGroup>
+							<Button type="submit" value="submit" color="secondary">
+								Log Time
+							</Button>
+						</Form>
+					</ModalBody>
+				</Modal>
+			</React.Fragment>
+		);
+	}
+}

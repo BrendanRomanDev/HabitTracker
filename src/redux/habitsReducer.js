@@ -15,7 +15,7 @@ export const habits = (
 			return { ...state, isLoading: true, errMess: null, habits: [] };
 		case ActionTypes.DATA_FAILED:
 			return { ...state, isLoading: false, errMess: action.payload };
-		case ActionTypes.ADD_HABIT_ITEMS:
+		case ActionTypes.ADD_HABIT_ITEMS:t
 			return {
 				...state,
 				isLoading : false,

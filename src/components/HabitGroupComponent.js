@@ -152,9 +152,7 @@ export class AddHabitGroupModal extends Component {
 		super(props);
 		this.state = {
 			isModalOpen      : false,
-			// id               : '',
 			groupName        : '',
-			groupLevel       : '',
 			groupDescription : ''
 		};
 	}
@@ -176,19 +174,14 @@ export class AddHabitGroupModal extends Component {
 		event.preventDefault();
 		const habitGroupToAdd = {
 			groupName        : this.state.groupName,
-			groupLevel       : this.state.groupLevel,
 			groupDescription : this.state.groupDescription
 		};
 		if (habitGroupToAdd.groupName) {
 			this.props.addHabitGroup(habitGroupToAdd);
 			this.setState({
 				isModalOpen      : false,
-				// id               : '',
 				groupName        : '',
-				groupLevel       : '',
-				groupDescription : '',
-				groupTimeTotal   : ''
-				// usedGroupIds     : [ ...this.state.usedGroupIds.concat(this.state.id) ]
+				groupDescription : ''
 			});
 		} else {
 			alert('Habit Category cannot be blank');
@@ -255,7 +248,9 @@ export const HabitGroupSettings = (props) => {
 			</DropdownToggle>
 			<DropdownMenu>
 				<DropdownItem>
-					<div onClick={() => removeHabitGroup(habitGroup)}>Delete</div>
+					<div onClick={() => removeHabitGroup(habitGroup)}>
+						<i className="fa fa-trash" /> Delete
+					</div>
 				</DropdownItem>
 			</DropdownMenu>
 		</ButtonDropdown>
@@ -300,6 +295,8 @@ export class AddHabitModal extends Component {
 			habitName          : '',
 			habitHrs           : '',
 			habitMins          : '',
+			targetHrs          : '',
+			targetMilliseconds : '',
 			loggedMilliseconds : ''
 			// usedItemIds    : //
 		};
@@ -323,9 +320,9 @@ export class AddHabitModal extends Component {
 		event.preventDefault();
 		this.toggleModal();
 		const habitInfo = {
-			habitGroupId   : this.props.habitGroup.id,
-			habitName      : this.state.habitName,
-			habitTimeTotal : `Hrs: ${this.state.habitHrs} Min: ${this.state.habitMins}`
+			habitGroupId       : this.props.habitGroup.id,
+			habitName          : this.state.habitName,
+			targetMilliseconds : this.state.targetHrs * 3600000
 		};
 
 		const timeData = {
@@ -339,15 +336,6 @@ export class AddHabitModal extends Component {
 
 		this.props.addHabitItem(habitInfo, timeData);
 
-		// const postHabitWithTimeLog = async () => {
-		// 	await this.props.addHabitItem(habitInfo);
-		// 	const res = await axios.get(`${baseUrl}habits`);
-		// 	const newId = res.data[res.data.length - 1].id;
-		// 	timeData.habitId = newId;
-		// 	this.props.addTimeLog(timeData);
-		// };
-		// postHabitWithTimeLog();
-
 		this.setState({
 			isModalOpen        : false,
 			id                 : '',
@@ -355,6 +343,8 @@ export class AddHabitModal extends Component {
 			habitName          : '',
 			habitHrs           : '',
 			habitMins          : '',
+			targetHrs          : '',
+			targetMilliseconds : '',
 			loggedMilliseconds : ''
 			// usedItemIds    : [ ...this.state.usedItemIds.concat(this.state.id) ]
 		});
@@ -391,6 +381,7 @@ export class AddHabitModal extends Component {
 										type="number"
 										name="habitHrs"
 										placeholder="Hours"
+										min="0"
 										onChange={(event) => this.handleInputChange(event)}
 										value={this.state.habitHrs}
 									/>
@@ -400,6 +391,7 @@ export class AddHabitModal extends Component {
 									<Input
 										type="number"
 										max="59"
+										min="0"
 										name="habitMins"
 										placeholder="Mins"
 										onChange={(event) => this.handleInputChange(event)}
@@ -407,6 +399,16 @@ export class AddHabitModal extends Component {
 									/>
 								</Col>
 							</FormGroup>
+							<Label htmlFor="targetHrs">Hours to Mastery</Label>
+							<Input
+								type="number"
+								min="0"
+								name="targetHrs"
+								placeholder="Ex: 500"
+								onChange={(event) => this.handleInputChange(event)}
+								value={this.state.targetHrs}
+							/>
+							<FormGroup />
 							<Button type="submit" value="submit" color="secondary">
 								Add Habit
 							</Button>
